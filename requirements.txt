@@ -1,0 +1,9 @@
+# Python 3.9 Compatible Versions 
+pyinstaller==5.13.0 
+pillow==9.5.0 
+requests==2.31.0 
+urllib3==1.26.16 
+pywin32==306 
+keyboard==0.13.5 
+mouse==0.7.1 
+pynput==1.7.6 
