@@ -7,7 +7,7 @@ import keyboard
 
 class WowServer:
     def __init__(self):
-        self.host = socket.gethostname()
+        self.host = "0.0.0.0"  # Changed from socket.gethostname() to explicitly bind to all IPv4 interfaces
         self.port = 5000
         self.running = True
         self.key = "."
@@ -78,12 +78,22 @@ class WowServer:
     async def start(self):
         # register keyboard hook (keyboard lib runs its own thread)
         keyboard.on_press(self.on_keypress)
-
-        server = await asyncio.start_server(self.handle_client, self.host, self.port)
-        addr = server.sockets[0].getsockname()
-        logging.info("Serving on %s", addr)
-        async with server:
-            await server.serve_forever()
+        
+        try:
+            server = await asyncio.start_server(
+                self.handle_client, 
+                self.host, 
+                self.port,
+                family=socket.AF_INET  # Force IPv4
+            )
+            addr = server.sockets[0].getsockname()
+            logging.info("Serving on %s", addr)
+            
+            async with server:
+                await server.serve_forever()
+        except Exception as e:
+            logging.error("Server failed to start: %s", e)
+            raise
 
 
 if __name__ == "__main__":

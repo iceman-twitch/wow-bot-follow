@@ -4,7 +4,7 @@ A simple bot that helps automate following and mimicking actions in World of War
 
 ## Requirements
 
-- Python 3.9 or higher
+- Python 3.9
 - Required Python packages (see requirements.txt)
 - Windows OS
 
@@ -41,7 +41,7 @@ A simple bot that helps automate following and mimicking actions in World of War
 ## Setup
 
 1. Clone the repository
-2. Install Python 3.9 or higher if not already installed
+2. Install Python 3.9 if not already installed
 3. Create and activate virtual environment (recommended):
    ```batch
    python -m venv env
@@ -54,6 +54,18 @@ A simple bot that helps automate following and mimicking actions in World of War
 5. Configure windows.json if using multi-window mode
 6. Run the server and client
 
+## Building Executable
+
+To create a standalone executable of the server on Windows, run the included build script:
+```batch
+onefileserver.bat
+```
+To create a standalone executable of the client on Windows, run the included build script:
+```batch
+onefileclient.bat
+```
+The resulting exe will be placed in the `dist` folder. Copy `windows.json` next to the wowclient.exe if you use multi-window mode.
+
 ## Configuration
 
 The bot can be configured to:
@@ -61,6 +73,26 @@ The bot can be configured to:
 - Custom key bindings
 - Specific follow targets
 - Quest automation sequences
+
+Notes:
+- If `windows.json` does not exist or contains fewer than 2 valid window entries, the client runs in single-window mode (no mouse clicks).
+- The JSON is not created by the app automatically; create it manually if you want multi-window support.
+
+## Example windows.json
+
+- Format: JSON object with a "windows" array. Each item is an object with integer `x` and `y` screen coordinates (pixels).
+- Multi-window mode is enabled only when there are 2 or more valid entries.
+
+```json
+{
+  "windows": [
+    { "x": 430,  "y": 13 },
+    { "x": 1683, "y": 13 },
+    { "x": 430,  "y": 810 },
+    { "x": 1683, "y": 810 }
+  ]
+}
+```
 
 ## Legal Notice
 
