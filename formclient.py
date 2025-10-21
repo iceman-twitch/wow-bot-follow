@@ -24,7 +24,7 @@ class FormClientApp:
         main.grid(sticky="nsew")
 
         ttk.Label(main, text="Host:").grid(column=0, row=0, sticky="w")
-        self.host_var = tk.StringVar(value="26.16.153.117")
+        self.host_var = tk.StringVar(value="26.23.110.199")
         ttk.Entry(main, textvariable=self.host_var, width=30).grid(column=1, row=0, sticky="ew")
 
         ttk.Label(main, text="Port:").grid(column=0, row=1, sticky="w")

@@ -16,16 +16,19 @@ class WowServer:
             "f","u","t",".",
         }
         self._lock = threading.Lock()
+        self._send_limit = 3
+        self._current_key = None
+        self._send_count = 0
+        self._key_ready = True  # Flag to indicate if we're ready for a new key
 
     def on_keypress(self, event):
-        # keyboard.on_press callback runs in keyboard library's thread.
         with self._lock:
-            if event.name == 'á':
-                self.running = False
-            elif event.name == 'é':
-                self.running = True
-            elif event.name in self.table:
+            if event.name in self.table and self._key_ready:
+                # Only accept new key if we're ready
                 self.key = event.name
+                self._current_key = event.name
+                self._send_count = 0
+                self._key_ready = False  # Mark that we're processing this key
 
     async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         addr = writer.get_extra_info('peername')
@@ -42,18 +45,26 @@ class WowServer:
                 await asyncio.sleep(0.2)
 
                 with self._lock:
-                    running = self.running
-                    key = self.key
-
-                if running and key in self.table:
-                    send = key
-                    logging.info("(Keyhook Enabled) Sending Key: %s", send)
-                else:
-                    send = "."
-                    logging.info("(Keyhook Disabled) Sending Key: %s", send)
-
+                    if self._current_key and not self._key_ready:
+                        if self._send_count < self._send_limit:
+                            send = self._current_key
+                            self._send_count += 1
+                            logging.info(f"Sending key: {send} (press {self._send_count}/3)")
+                            
+                            if self._send_count >= self._send_limit:
+                                self._key_ready = True  # Ready for next key
+                                self._current_key = None
+                                logging.info("3 presses complete - ready for next key")
+                        else:
+                            send = "."
+                    else:
+                        send = "."
+                        if self._key_ready:
+                            logging.info("Waiting for new key")
+                        
                 writer.write(send.encode())
                 await writer.drain()
+
         except (asyncio.CancelledError, ConnectionResetError) as e:
             logging.info("Client %s disconnected: %s", addr, e)
         finally:
@@ -85,4 +96,3 @@ if __name__ == "__main__":
         asyncio.run(srv.start())
     except KeyboardInterrupt:
         logging.info("Server shutting down")
-# ...existing code...
